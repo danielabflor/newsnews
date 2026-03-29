@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>News' News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1a1a18;
+  --ink-2: #4a4a46;
+  --ink-3: #8a8a84;
+  --paper: #f7f4ef;
+  --paper-2: #ede9e1;
+  --paper-3: #ddd8cc;
+  --rule: rgba(26,26,24,0.12);
+  --accent: #b8360a;
+  --serif: 'Libre Baskerville', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+}
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; font-size: 15px; }
+
+/* SETUP */
+#setup-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+.setup-card { max-width: 500px; width: 100%; }
+.setup-masthead { font-family: var(--serif); font-size: 38px; font-weight: 700; letter-spacing: -1px; margin-bottom: 4px; }
+.setup-masthead em { color: var(--accent); font-style: italic; }
+.setup-sub { font-size: 14px; color: var(--ink-3); margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--rule); line-height: 1.5; }
+.setup-section { margin-bottom: 1.75rem; }
+.setup-label { font-size: 11px; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.setup-label span { font-size: 11px; color: var(--ink-3); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.field-input { width: 100%; padding: 10px 14px; font-family: var(--sans); font-size: 14px; border: 1px solid var(--paper-3); border-radius: 6px; background: white; color: var(--ink); outline: none; transition: border-color 0.15s; }
+.field-input:focus { border-color: var(--ink-2); }
+.field-input::placeholder { color: var(--ink-3); }
+.sources-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.source-row { display: flex; gap: 8px; align-items: center; }
+.source-row input { flex: 1; padding: 8px 12px; font-family: var(--sans); font-size: 13px; border: 1px solid var(--paper-3); border-radius: 6px; background: white; color: var(--ink); outline: none; }
+.source-row input:focus { border-color: var(--ink-2); }
+.btn-remove-src { background: none; border: none; cursor: pointer; color: var(--ink-3); font-size: 20px; line-height: 1; padding: 2px 6px; }
+.btn-remove-src:hover { color: var(--accent); }
+.btn-add-src { font-size: 13px; color: var(--ink-3); background: none; border: none; cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+.btn-add-src:hover { color: var(--ink); }
+.days-row { display: flex; gap: 6px; }
+.day-chip { padding: 6px 16px; border-radius: 99px; border: 1px solid var(--paper-3); background: white; font-family: var(--sans); font-size: 13px; cursor: pointer; color: var(--ink-2); transition: all 0.12s; }
+.day-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn-connect { width: 100%; padding: 14px; background: var(--ink); color: var(--paper); border: none; border-radius: 6px; font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 0.5rem; transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-connect:hover { opacity: 0.85; }
+.google-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.setup-note { font-size: 12px; color: var(--ink-3); text-align: center; margin-top: 12px; line-height: 1.6; }
+.setup-hint { background: white; border: 1px solid var(--paper-3); border-radius: 6px; padding: 12px 14px; font-size: 12px; color: var(--ink-2); line-height: 1.7; margin-top: 1.5rem; }
+.setup-hint strong { font-weight: 500; color: var(--ink); }
+.setup-hint a { color: var(--accent); }
+
+/* APP */
+#app-screen { display: none; min-height: 100vh; }
+.app-header { border-bottom: 3px double var(--rule); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; background: var(--paper); position: sticky; top: 0; z-index: 10; }
+.masthead { font-family: var(--serif); font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+.masthead em { color: var(--accent); font-style: italic; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.header-date { font-size: 12px; color: var(--ink-3); }
+.btn-settings { padding: 7px 12px; background: none; border: 1px solid var(--rule); border-radius: 4px; font-size: 13px; cursor: pointer; color: var(--ink-3); font-family: var(--sans); }
+.btn-settings:hover { color: var(--ink); border-color: var(--ink-2); }
+.btn-refresh { padding: 7px 16px; background: var(--accent); color: white; border: none; border-radius: 4px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+.btn-refresh:hover { opacity: 0.85; }
+.btn-refresh:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* LOADING */
+#loading-screen { display: none; padding: 5rem 2rem; text-align: center; }
+.loading-masthead { font-family: var(--serif); font-size: 18px; color: var(--ink-2); margin-bottom: 2.5rem; font-style: italic; }
+.loading-steps { display: flex; flex-direction: column; gap: 12px; max-width: 340px; margin: 0 auto; }
+.loading-step { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--ink-3); text-align: left; }
+.step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--paper-3); flex-shrink: 0; transition: background 0.3s; }
+.step-dot.done { background: var(--accent); }
+.step-dot.active { background: var(--ink); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* BRIEFING */
+#briefing-screen { display: none; max-width: 740px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+.edition-line { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+.briefing-headline { font-family: var(--serif); font-size: 36px; font-weight: 700; line-height: 1.12; letter-spacing: -0.5px; margin-bottom: 10px; }
+.briefing-deck { font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--ink-2); line-height: 1.5; margin-bottom: 1.75rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--rule); }
+.themes-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2.5rem; }
+.theme-pill { font-size: 12px; padding: 5px 13px; border-radius: 99px; border: 1px solid var(--rule); color: var(--ink-2); cursor: pointer; text-decoration: none; transition: all 0.12s; }
+.theme-pill:hover { border-color: var(--ink); color: var(--ink); }
+.theme-block { margin-bottom: 2.75rem; padding-bottom: 2.75rem; border-bottom: 1px solid var(--rule); }
+.theme-block:last-child { border-bottom: none; }
+.theme-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 1.25rem; }
+.theme-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 9px; border-radius: 3px; }
+.lbl-negocios { background: #e8f0fb; color: #1a4a8a; }
+.lbl-ia { background: #e4f5ee; color: #0a5c3a; }
+.lbl-plataformas { background: #fdf0e0; color: #7a4800; }
+.lbl-monetizacao { background: #fce8f0; color: #7a1a40; }
+.theme-story-count { font-size: 12px; color: var(--ink-3); }
+.story-entry { margin-bottom: 1.5rem; }
+.story-entry + .story-entry { padding-top: 1.5rem; border-top: 1px dashed var(--rule); }
+.story-lede { font-size: 15px; line-height: 1.8; color: var(--ink); margin-bottom: 10px; }
+.story-lede blockquote { margin: 10px 0; padding: 6px 0 6px 16px; border-left: 2px solid var(--accent); color: var(--ink-2); font-style: italic; font-family: var(--serif); font-size: 14px; line-height: 1.65; }
+.story-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.story-source-tag { font-size: 11px; color: var(--ink-3); background: var(--paper-2); padding: 2px 8px; border-radius: 3px; }
+.story-link { font-size: 12px; color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(184,54,10,0.25); transition: border-color 0.1s; }
+.story-link:hover { border-color: var(--accent); }
+.redundancy-note { font-size: 11px; color: var(--ink-3); font-style: italic; margin-top: 6px; }
+.briefing-footer { margin-top: 3rem; padding-top: 1rem; border-top: 3px double var(--rule); font-size: 12px; color: var(--ink-3); display: flex; justify-content: space-between; }
+
+/* ERROR */
+#error-screen { display: none; max-width: 480px; margin: 5rem auto; padding: 2rem; text-align: center; }
+.error-title { font-family: var(--serif); font-size: 22px; margin-bottom: 10px; }
+.error-msg { font-size: 14px; color: var(--ink-3); line-height: 1.6; margin-bottom: 1.5rem; }
+.btn-back { padding: 10px 22px; background: var(--ink); color: var(--paper); border: none; border-radius: 4px; font-family: var(--sans); font-size: 14px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-masthead">News' <em>News</em></div>
+    <div class="setup-sub">Your daily briefing on the news industry — no redundancy, no effort.</div>
+
+    <div class="setup-section">
+      <div class="setup-label">Chave da API Anthropic <span>— gera o briefing com IA</span></div>
+      <input type="password" class="field-input" id="anthropic-key" placeholder="sk-ant-api03-..." />
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-label">Google Client ID <span>— acesso de leitura ao Gmail</span></div>
+      <input type="text" class="field-input" id="google-client-id" placeholder="000000000000.apps.googleusercontent.com" />
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-label">Fontes a monitorar <span>— domínio ou email do remetente</span></div>
+      <div class="sources-list" id="sources-list"></div>
+      <button class="btn-add-src" onclick="addSourceRow()">+ adicionar fonte</button>
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-label">Período de busca</div>
+      <div class="days-row">
+        <button class="day-chip active" onclick="selectDays(this,1)">Últimas 24h</button>
+        <button class="day-chip" onclick="selectDays(this,2)">2 dias</button>
+        <button class="day-chip" onclick="selectDays(this,7)">1 semana</button>
+      </div>
+    </div>
+
+    <button class="btn-connect" onclick="startAuth()">
+      <svg class="google-icon" viewBox="0 0 24 24">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Conectar Gmail e gerar briefing
+    </button>
+
+    <div class="setup-note">Acesso somente leitura. Credenciais salvas localmente no seu navegador, nunca em servidor.</div>
+
+    <div class="setup-hint">
+      <strong>Primeira vez?</strong> Você precisa de dois itens:<br>
+      1. <strong>Chave Anthropic:</strong> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys<br>
+      2. <strong>Google Client ID:</strong> <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> → APIs &amp; Services → Credentials → Create OAuth 2.0 Client ID (tipo: Web application). Adicione <strong>esta URL</strong> como "Authorized JavaScript origin" e "Authorized redirect URI".
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="app-header">
+    <div class="masthead">News' <em>News</em></div>
+    <div class="header-right">
+      <span class="header-date" id="header-date"></span>
+      <button class="btn-settings" onclick="goToSetup()">configurações</button>
+      <button class="btn-refresh" id="btn-refresh" onclick="runPipeline()">↺ Atualizar</button>
+    </div>
+  </div>
+
+  <div id="loading-screen">
+    <div class="loading-masthead">Preparando seu briefing…</div>
+    <div class="loading-steps">
+      <div class="loading-step"><div class="step-dot" id="dot-1"></div><span>Autenticando com Gmail</span></div>
+      <div class="loading-step"><div class="step-dot" id="dot-2"></div><span>Buscando newsletters das fontes selecionadas</span></div>
+      <div class="loading-step"><div class="step-dot" id="dot-3"></div><span>Extraindo conteúdo e links</span></div>
+      <div class="loading-step"><div class="step-dot" id="dot-4"></div><span>Identificando redundâncias entre fontes</span></div>
+      <div class="loading-step"><div class="step-dot" id="dot-5"></div><span>Gerando briefing editorial com IA</span></div>
+    </div>
+  </div>
+
+  <div id="briefing-screen"></div>
+
+  <div id="error-screen">
+    <div class="error-title">Algo deu errado</div>
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn-back" onclick="goToSetup()">Voltar às configurações</button>
+  </div>
+</div>
+
+<script>
+let STATE = {
+  anthropicKey: '',
+  googleClientId: '',
+  sources: [],
+  days: 1,
+  accessToken: null,
+};
+
+const TOPICS = [
+  { id: 'negocios',    label: 'Negócios de mídia',    cls: 'lbl-negocios' },
+  { id: 'ia',          label: 'IA aplicada à mídia',  cls: 'lbl-ia' },
+  { id: 'plataformas', label: 'Plataformas digitais', cls: 'lbl-plataformas' },
+  { id: 'monetizacao', label: 'Monetização',          cls: 'lbl-monetizacao' },
+];
+
+function init() {
+  loadFromStorage();
+  renderSourceRows();
+  document.getElementById('header-date').textContent =
+    new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
+}
+
+function loadFromStorage() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('pautadiaria_v2') || '{}');
+    STATE.anthropicKey   = cfg.anthropicKey   || '';
+    STATE.googleClientId = cfg.googleClientId || '';
+    STATE.sources        = cfg.sources        || defaultSources();
+    STATE.days           = cfg.days           || 1;
+    document.getElementById('anthropic-key').value    = STATE.anthropicKey;
+    document.getElementById('google-client-id').value = STATE.googleClientId;
+    const chips = document.querySelectorAll('.day-chip');
+    chips.forEach(c => {
+      c.classList.toggle('active', parseInt(c.dataset.days||'1') === STATE.days);
+    });
+  } catch(e) { STATE.sources = defaultSources(); }
+}
+
+function defaultSources() {
+  return [
+    'simonowens@substack.com',
+    'faroljornalismo@substack.com',
+    'newsletter@niemanlab.org',
+    'reuters.institute@politics.ox.ac.uk',
+    'pressgazettefutureofmediaus@substack.com',
+    'the-rebooting@mail.therebooting.com',
+    'reddeperiodistas+noticias-reddeperiodistas@substack.com',
+    'tendencias@substack.com',
+    'rafaelsbarai@substack.com',
+    'media-minds-by-adriana-lacy-consulting@ghost.io',
+    'faroljornalismo+jornalismo-no-brasil@substack.com',
+    'hello@newsproduct.org',
+    'newsletter@journalists.org',
+    'latamjournalismreview@knightcenter.utexas.edu',
+    'wtfseo@substack.com',
+    'abraji@abraji.org.br',
+    'towcentercuj@21114051.mailchimpapp.com',
+    'hello@journalismai.info',
+    'troyyoung@substack.com',
+    'hello@email.poool.tech',
+    'newsalchemists@ghost.io',
+  ];
+}
+
+function saveToStorage() {
+  localStorage.setItem('pautadiaria_v2', JSON.stringify({
+    anthropicKey: STATE.anthropicKey,
+    googleClientId: STATE.googleClientId,
+    sources: STATE.sources,
+    days: STATE.days,
+  }));
+}
+
+function renderSourceRows() {
+  const list = document.getElementById('sources-list');
+  list.innerHTML = '';
+  STATE.sources.forEach((src, i) => {
+    const row = document.createElement('div');
+    row.className = 'source-row';
+    row.innerHTML = `
+      <input type="text" placeholder="ex: niemanlab.org ou email@newsletter.com" value="${escHtml(src)}"
+        oninput="STATE.sources[${i}]=this.value" />
+      <button class="btn-remove-src" onclick="removeSource(${i})" title="Remover">×</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function addSourceRow() {
+  STATE.sources.push('');
+  renderSourceRows();
+  document.querySelectorAll('.source-row input').item(STATE.sources.length - 1)?.focus();
+}
+
+function removeSource(i) {
+  STATE.sources.splice(i, 1);
+  renderSourceRows();
+}
+
+function selectDays(el, n) {
+  document.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  STATE.days = n;
+}
+
+// OAuth
+function startAuth() {
+  STATE.anthropicKey   = document.getElementById('anthropic-key').value.trim();
+  STATE.googleClientId = document.getElementById('google-client-id').value.trim();
+  STATE.sources = Array.from(document.querySelectorAll('.source-row input'))
+    .map(i => i.value.trim()).filter(Boolean);
+
+  if (!STATE.anthropicKey)   { alert('Insira sua chave da API Anthropic.'); return; }
+  if (!STATE.googleClientId) { alert('Insira seu Google Client ID.'); return; }
+  if (!STATE.sources.length) { alert('Adicione ao menos uma fonte.'); return; }
+
+  saveToStorage();
+
+  const redirectUri = window.location.href.split('#')[0].split('?')[0];
+  const params = new URLSearchParams({
+    client_id: STATE.googleClientId,
+    redirect_uri: redirectUri,
+    response_type: 'token',
+    scope: 'https://www.googleapis.com/auth/gmail.readonly',
+    prompt: 'consent',
+    access_type: 'online',
+  });
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
+}
+
+function checkOAuthCallback() {
+  const hash = window.location.hash;
+  if (!hash) return false;
+  const params = new URLSearchParams(hash.slice(1));
+  const token = params.get('access_token');
+  if (!token) return false;
+  STATE.accessToken = token;
+  history.replaceState(null, '', window.location.pathname);
+  return true;
+}
+
+// Gmail fetch
+async function fetchEmails() {
+  const after = Math.floor((Date.now() - STATE.days * 86400000) / 1000);
+  const srcQ  = STATE.sources.map(s => `from:${s}`).join(' OR ');
+  const q     = encodeURIComponent(`(${srcQ}) after:${after}`);
+
+  const listRes = await fetch(
+    `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${q}&maxResults=50`,
+    { headers: { Authorization: `Bearer ${STATE.accessToken}` } }
+  );
+  if (!listRes.ok) throw new Error(`Gmail API: ${listRes.status}`);
+  const list = await listRes.json();
+  if (!list.messages?.length) return [];
+
+  const emails = [];
+  for (const m of list.messages.slice(0, 30)) {
+    try {
+      const r = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=full`,
+        { headers: { Authorization: `Bearer ${STATE.accessToken}` } }
+      );
+      const data = await r.json();
+      const parsed = parseEmail(data);
+      if (parsed) emails.push(parsed);
+    } catch(e) { /* skip */ }
+  }
+  return emails;
+}
+
+function parseEmail(msg) {
+  const hdrs    = msg.payload?.headers || [];
+  const subject = hdrs.find(h => h.name === 'Subject')?.value || '';
+  const from    = hdrs.find(h => h.name === 'From')?.value    || '';
+  const date    = hdrs.find(h => h.name === 'Date')?.value    || '';
+
+  const rawHtml = extractRawHtml(msg.payload);
+  const links   = extractLinks(rawHtml);
+  const body    = stripHtml(rawHtml).replace(/\s+/g,' ').trim().slice(0, 8000);
+
+  if (body.length < 80) return null;
+  return { subject, from, date, body, links: links.slice(0, 12) };
+}
+
+function extractRawHtml(payload) {
+  if (!payload) return '';
+  if (payload.mimeType === 'text/html' && payload.body?.data)
+    return atob(payload.body.data.replace(/-/g,'+').replace(/_/g,'/'));
+  if (payload.parts) {
+    for (const p of payload.parts) {
+      if (p.mimeType === 'text/html' && p.body?.data)
+        return atob(p.body.data.replace(/-/g,'+').replace(/_/g,'/'));
+    }
+    for (const p of payload.parts) {
+      const r = extractRawHtml(p);
+      if (r) return r;
+    }
+  }
+  if (payload.body?.data)
+    return atob(payload.body.data.replace(/-/g,'+').replace(/_/g,'/'));
+  return '';
+}
+
+function extractLinks(html) {
+  const links = [];
+  const seen  = new Set();
+  const re    = /href=["']([^"'#?]+[^"'#?/])["'][^>]*>([^<]{5,100})</gi;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const url  = m[1].trim();
+    const text = m[2].replace(/\s+/g,' ').trim();
+    if (!url.startsWith('http')) continue;
+    if (/unsubscribe|mailto|manage|preferences|click\.|tracking\.|list-|open\.php/i.test(url)) continue;
+    if (seen.has(url)) continue;
+    seen.add(url);
+    links.push({ url, text });
+  }
+  return links;
+}
+
+function stripHtml(html) {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi,'')
+    .replace(/<script[\s\S]*?<\/script>/gi,'')
+    .replace(/<[^>]+>/g,' ')
+    .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
+    .replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+    .replace(/\s{3,}/g,'  ');
+}
+
+// AI
+async function generateBriefing(emails) {
+  const corpus = emails.map((e, i) =>
+    `=== NEWSLETTER ${i+1} ===\nDe: ${e.from}\nAssunto: ${e.subject}\nConteúdo:\n${e.body}\nLinks disponíveis: ${e.links.map(l=>`"${l.text}" → ${l.url}`).join(' | ')}`
+  ).join('\n\n');
+
+  const system = `Você é o editor-chefe de um briefing diário sobre mídia e jornalismo. Seu produto não é um agregador de notícias — é uma síntese analítica. Quem lê precisa sair entendendo não apenas O QUE aconteceu, mas O QUE ESTÁ SENDO DISCUTIDO, QUAL O ARGUMENTO CENTRAL e POR QUE ISSO IMPORTA para o mercado de mídia. Os links existem apenas para quem quiser se aprofundar.
+
+PRINCÍPIOS EDITORIAIS INEGOCIÁVEIS:
+1. Nunca invente ou infira nada além do que está explicitamente no corpus de emails. Zero especulação.
+2. Cada story é um texto analítico de 6 a 10 linhas — não uma headline, não um bullet point. Desenvolva o raciocínio: qual é a tese central da discussão, quais são os argumentos, qual o contexto mais amplo, o que está em jogo.
+3. Use aspas diretas do original para ancorar os argumentos mais importantes — frases que capturam bem uma posição, uma tensão ou uma conclusão relevante. As aspas devem sustentar a narrativa, não decorá-la. Sempre atribua pelo nome da newsletter ou autor.
+4. Quando múltiplas fontes cobrem o mesmo assunto, isso é ouro — mostre onde há consenso, onde há tensão, onde as perspectivas divergem. Não apenas "X fontes cobriram isso", mas o que cada uma acrescenta ao debate.
+5. Evite linguagem de press release ("anuncia", "lança", "revela"). Prefira linguagem de análise ("argumenta", "questiona", "aponta", "tensiona", "contradiz").
+6. Selecione apenas links que genuinamente adicionam valor — o texto original completo de um argumento importante, um dado citado, um relatório mencionado.
+
+TEMAS PRIORITÁRIOS (nesta ordem de importância):
+- negocios: negócios de mídia e jornalismo, mercado editorial, veículos, demissões, fusões, audiência, distribuição
+- ia: inteligência artificial aplicada ao jornalismo, automação de redações, ferramentas de IA para mídia, impacto no trabalho jornalístico
+- plataformas: Meta, Google, TikTok, YouTube, X/Twitter e seu impacto no jornalismo e distribuição de conteúdo
+- monetizacao: modelos de negócio, assinaturas, publicidade, receita, sustentabilidade do jornalismo independente
+
+Omita completamente temas sem conteúdo relevante no corpus.
+
+Responda SOMENTE com JSON válido, sem markdown, sem comentários:
+{
+  "manchete": "título analítico que captura a discussão central do dia (máx 12 palavras)",
+  "subtitulo": "frase que contextualiza o momento do mercado (máx 20 palavras)",
+  "total_emails": <número inteiro>,
+  "temas": [
+    {
+      "id": "negocios|ia|plataformas|monetizacao",
+      "stories": [
+        {
+          "narrativa": "texto analítico de 6 a 10 linhas que desenvolve o argumento central da discussão, com aspas diretas das fontes para ancorar os pontos mais importantes, atribuindo sempre pelo nome da newsletter ou autor",
+          "fontes": ["Nome amigável da fonte 1", "Nome amigável da fonte 2"],
+          "cobertura_multipla": true,
+          "links": [
+            { "texto": "descrição clara do que o link leva", "url": "https://..." }
+          ]
+        }
+      ]
+    }
+  ]
+}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': STATE.anthropicKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system,
+      messages: [{
+        role: 'user',
+        content: `Emails das últimas ${STATE.days === 1 ? '24 horas' : STATE.days + ' dias'} (${emails.length} newsletters):\n\n${corpus}`
+      }]
+    })
+  });
+
+  if (!res.ok) throw new Error(`Anthropic API: ${res.status}`);
+  const data = await res.json();
+  const raw  = data.content.map(b => b.text||'').join('');
+  return JSON.parse(raw.replace(/```json|```/g,'').trim());
+}
+
+// Render
+function renderBriefing(b) {
+  const screen = document.getElementById('briefing-screen');
+  const today  = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  const nav = b.temas.map(t => {
+    const tp = TOPICS.find(x => x.id === t.id) || { label: t.id };
+    return `<a href="#tema-${t.id}" class="theme-pill">${tp.label}</a>`;
+  }).join('');
+
+  const blocks = b.temas.map(t => {
+    const tp = TOPICS.find(x => x.id === t.id) || { label: t.id, cls: 'lbl-negocios' };
+    const stories = (t.stories||[]).map(s => {
+      const tags   = (s.fontes||[]).map(f => `<span class="story-source-tag">${escHtml(f)}</span>`).join('');
+      const links  = (s.links||[]).map(l =>
+        `<a class="story-link" href="${escHtml(l.url)}" target="_blank" rel="noopener">${escHtml(l.texto)} ↗</a>`
+      ).join(' ');
+      const multi  = s.cobertura_multipla && (s.fontes||[]).length > 1
+        ? `<div class="redundancy-note">Assunto coberto por ${s.fontes.length} fontes — redundâncias consolidadas</div>` : '';
+      const narrativa = formatNarrativa(escHtml(s.narrativa));
+      return `
+        <div class="story-entry">
+          <div class="story-lede">${narrativa}</div>
+          <div class="story-meta">${tags}${links}</div>
+          ${multi}
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="theme-block" id="tema-${t.id}">
+        <div class="theme-header">
+          <span class="theme-label ${tp.cls}">${tp.label}</span>
+          <span class="theme-story-count">${(t.stories||[]).length} assunto${(t.stories||[]).length !== 1 ? 's' : ''}</span>
+        </div>
+        ${stories}
+      </div>`;
+  }).join('');
+
+  screen.innerHTML = `
+    <div class="edition-line">Edição de hoje · ${today} · ${b.total_emails} emails processados</div>
+    <h1 class="briefing-headline">${escHtml(b.manchete)}</h1>
+    <div class="briefing-deck">${escHtml(b.subtitulo)}</div>
+    <div class="themes-nav">${nav}</div>
+    ${blocks}
+    <div class="briefing-footer">
+      <span>News' <em style="font-style:italic;color:var(--accent)">News</em></span>
+      <span>Gerado às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
+    </div>`;
+}
+
+function formatNarrativa(text) {
+  // Turn quoted passages (20+ chars) into blockquotes
+  return text.replace(/&quot;([^&]{20,})&quot;/g, (_, inner) =>
+    `<blockquote>${inner}</blockquote>`
+  );
+}
+
+// Pipeline
+async function runPipeline() {
+  document.getElementById('btn-refresh').disabled = true;
+  showScreen('loading');
+
+  try {
+    setStep(1); await tick();
+    setStep(2);
+    const emails = await fetchEmails();
+
+    if (!emails.length) {
+      showError('Nenhum email encontrado das fontes configuradas no período selecionado.\n\nVerifique se os remetentes estão corretos ou amplie o período de busca.');
+      return;
+    }
+
+    setStep(3); await tick();
+    setStep(4); await tick();
+    setStep(5);
+
+    const briefing = await generateBriefing(emails);
+    renderBriefing(briefing);
+    showScreen('briefing');
+  } catch(e) {
+    console.error(e);
+    showError(e.message || 'Erro desconhecido. Verifique suas chaves de API e tente novamente.');
+  }
+
+  document.getElementById('btn-refresh').disabled = false;
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    d.className = i < n ? 'step-dot done' : i === n ? 'step-dot active' : 'step-dot';
+  }
+}
+
+function showScreen(name) {
+  document.getElementById('loading-screen').style.display  = name === 'loading'  ? 'block' : 'none';
+  document.getElementById('briefing-screen').style.display = name === 'briefing' ? 'block' : 'none';
+  document.getElementById('error-screen').style.display    = name === 'error'    ? 'block' : 'none';
+}
+
+function showError(msg) {
+  document.getElementById('error-msg').textContent = msg;
+  showScreen('error');
+}
+
+function goToSetup() {
+  document.getElementById('setup-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display   = 'none';
+}
+
+function tick() { return new Promise(r => setTimeout(r, 350)); }
+
+// Boot
+init();
+if (checkOAuthCallback()) {
+  loadFromStorage();
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display   = 'block';
+  runPipeline();
+}
+</script>
+</body>
+</html>
