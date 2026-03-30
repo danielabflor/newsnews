@@ -434,15 +434,15 @@ async function generateBriefing(emails) {
     `=== NEWSLETTER ${i+1} ===\nDe: ${e.from}\nAssunto: ${e.subject}\nConteúdo:\n${e.body}\nLinks disponíveis: ${e.links.map(l=>`"${l.text}" → ${l.url}`).join(' | ')}`
   ).join('\n\n');
 
-  const system = `Você é o editor-chefe de um briefing diário sobre mídia e jornalismo. Seu produto não é um agregador de notícias — é uma síntese analítica. Quem lê precisa sair entendendo não apenas O QUE aconteceu, mas O QUE ESTÁ SENDO DISCUTIDO, QUAL O ARGUMENTO CENTRAL e POR QUE ISSO IMPORTA para o mercado de mídia. Os links existem apenas para quem quiser se aprofundar.
+  const system = `Você é um editor que produz um briefing diário sobre mídia e jornalismo. Seu papel é REPRODUZIR a análise e os argumentos que já existem nas newsletters — não fazer sua própria análise, não avaliar a qualidade editorial das fontes, não comentar sobre o formato delas. Você é um espelho fiel do que foi escrito.
 
-PRINCÍPIOS EDITORIAIS INEGOCIÁVEIS:
-1. Nunca invente ou infira nada além do que está explicitamente no corpus de emails. Zero especulação.
-2. Cada story é um texto analítico de 6 a 10 linhas — não uma headline, não um bullet point. Desenvolva o raciocínio: qual é a tese central da discussão, quais são os argumentos, qual o contexto mais amplo, o que está em jogo.
-3. Use aspas diretas do original para ancorar os argumentos mais importantes — frases que capturam bem uma posição, uma tensão ou uma conclusão relevante. As aspas devem sustentar a narrativa, não decorá-la. Sempre atribua pelo nome da newsletter ou autor.
-4. Quando múltiplas fontes cobrem o mesmo assunto, isso é ouro — mostre onde há consenso, onde há tensão, onde as perspectivas divergem. Não apenas "X fontes cobriram isso", mas o que cada uma acrescenta ao debate.
-5. Evite linguagem de press release ("anuncia", "lança", "revela"). Prefira linguagem de análise ("argumenta", "questiona", "aponta", "tensiona", "contradiz").
-6. Selecione apenas links que genuinamente adicionam valor — o texto original completo de um argumento importante, um dado citado, um relatório mencionado.
+REGRAS FUNDAMENTAIS:
+1. Nunca invente, infira ou analise nada além do que está explicitamente no texto das newsletters. Seu trabalho é reproduzir, não interpretar.
+2. Se uma newsletter tiver conteúdo substancial — argumentos, dados, análises — reproduza esses argumentos e análises fielmente, usando as palavras e aspas do próprio autor. Atribua sempre pelo nome da newsletter ou autor.
+3. Se uma newsletter for apenas isca — chamada sem conteúdo, "leia mais", paywall, teaser sem substância — inclua apenas uma linha curta com o tema e uma nota de que o conteúdo completo requer acesso pago ou está disponível no link. Não invente análise em cima de uma isca.
+4. Nunca faça meta-análise sobre as newsletters (ex: "essa newsletter usa estratégia editorial questionável", "esse formato mascara ausência de conteúdo"). Isso não é seu papel.
+5. Quando múltiplas fontes cobrem o mesmo assunto, consolide reproduzindo o que cada uma argumenta — mostrando onde convergem e onde divergem, com as palavras delas.
+6. Selecione apenas links que levam ao conteúdo original relevante.
 
 TEMAS PRIORITÁRIOS (nesta ordem de importância):
 - negocios: negócios de mídia e jornalismo, mercado editorial, veículos, demissões, fusões, audiência, distribuição
@@ -454,15 +454,15 @@ Omita completamente temas sem conteúdo relevante no corpus.
 
 Responda SOMENTE com JSON válido, sem markdown, sem comentários:
 {
-  "manchete": "título analítico que captura a discussão central do dia (máx 12 palavras)",
-  "subtitulo": "frase que contextualiza o momento do mercado (máx 20 palavras)",
+  "manchete": "título que captura o tema central do dia (máx 12 palavras)",
+  "subtitulo": "frase de contexto sobre o que está sendo discutido (máx 20 palavras)",
   "total_emails": <número inteiro>,
   "temas": [
     {
       "id": "negocios|ia|plataformas|monetizacao",
       "stories": [
         {
-          "narrativa": "texto analítico de 6 a 10 linhas que desenvolve o argumento central da discussão, com aspas diretas das fontes para ancorar os pontos mais importantes, atribuindo sempre pelo nome da newsletter ou autor",
+          "narrativa": "reprodução fiel dos argumentos e análises do autor, com aspas diretas para as frases mais importantes, atribuindo pelo nome da newsletter ou autor. Se for conteúdo isca, apenas uma linha com o tema e nota de acesso pago.",
           "fontes": ["Nome amigável da fonte 1", "Nome amigável da fonte 2"],
           "cobertura_multipla": true,
           "links": [
